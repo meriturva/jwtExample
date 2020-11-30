@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>La mia banca</title>
+        <script>
+            function Login() {
+                    var xhttp = new XMLHttpRequest();
+                    xhttp.onreadystatechange = function() {
+                        if (xhttp.readyState == 4 && xhttp.status == 200) {
+                            alert("La mia banca ha eseguito correttamente il login");
+                            // Memorizzo il token nel local storage
+                            console.log(this.responseText);
+                            localStorage.setItem('token', this.responseText);
+                        }
+                        if (xhttp.readyState == 4 && xhttp.status == 403) {
+                            alert("Errore login");
+                        }
+                    };
+                    
+                    xhttp.open("POST", "http://localhost:3000/login", true);
+                    xhttp.setRequestHeader("Content-type", "application/json");
+                    // Richiesta di bonifico
+                    var richiestaLogin = {
+                        username: document.getElementById('username').value,
+                        password: document.getElementById('password').value
+                    }
+                    xhttp.send(JSON.stringify(richiestaLogin));
+                }
+
+            function InviaBonificoAlServer() {
+                    var xhttp = new XMLHttpRequest();
+                    xhttp.onreadystatechange = function() {
+                        if (this.readyState == 4 && this.status == 200) {
+                            alert("La mia banca mi ha risposto: " + this.responseText);
+                        }
+                        if (this.readyState == 4 && this.status == 403) {
+                            alert("Bonifico non inviato");
+                        }
+                    };
+                    xhttp.open("POST", "http://localhost:3000/effettuaBonifico", true);
+                    xhttp.setRequestHeader("content-type", "application/json");
+                    // Carico il token dal local storage e lo metto nell'header
+                    xhttp.setRequestHeader("authorization", "bearer " + JSON.parse(localStorage.getItem('token')).accessToken);
+                    // Richiesta di bonifico
+                    var richiestaBonifico = {
+                        importo: 1000
+                    }
+                    xhttp.send(JSON.stringify(richiestaBonifico));
+                }
+        </script>
+    </head>
+    <body style="background-color: aquamarine;">
+        Questo è il sito della mia banca<br>
+        <hr>
+        <label for="username">UserName:</label>
+        <input type="text" id="username" name="username"><br><br>
+        <label for="password">Password:</label>
+        <input type="text" id="password" name="password"><br><br>
+        <button onclick="Login()">Effettua Login</button>
+        <hr>
+
+        <button onclick="InviaBonificoAlServer()">Effettua Bonifico</button>
+    </body>
+</html>
